@@ -10,8 +10,6 @@ Tandai item sebagai sudah dibeli (purchased)
 
 Cari item berdasarkan nama atau kategori
 
-Dark/Light Mode toggle
-
 Notifikasi toast saat aksi sukses/error
 
 📱 Teknologi
@@ -35,13 +33,6 @@ react-native-toast-message
   theme.ts         -> Light/Dark color themes
 /store
   useShoppingStore.ts -> Store item belanja
-  useThemeStore.ts    -> Store dark mode
-
-⚡ Instalasi Cepat
-git clone https://github.com/username/shopping-app.git
-cd shopping-app
-npm install
-npx expo start
 
 🖥 Contoh Penggunaan
 Home Screen
@@ -63,17 +54,6 @@ Detail Screen
 Edit nama, quantity, kategori
 
 Tekan Simpan Perubahan
-
-🌙 Dark Mode
-
-Dark mode diatur menggunakan Zustand:
-
-import create from "zustand";
-
-export const useThemeStore = create((set) => ({
-  darkMode: false,
-  toggleDarkMode: () => set(state => ({ darkMode: !state.darkMode })),
-}));
 
 🛠 Store Item Belanja
 import create from "zustand";
