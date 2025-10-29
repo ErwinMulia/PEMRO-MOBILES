@@ -1,50 +1,105 @@
-# Welcome to your Expo app 👋
+Shopping App React Native
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi belanja mobile berbasis React Native + Expo Router dengan dark mode, state management menggunakan Zustand, dan fitur manajemen item yang lengkap.
 
-## Get started
+✨ Fitur Utama
 
-1. Install dependencies
+Tambah, hapus, dan edit item belanja
 
-   ```bash
-   npm install
-   ```
+Tandai item sebagai sudah dibeli (purchased)
 
-2. Start the app
+Cari item berdasarkan nama atau kategori
 
-   ```bash
-   npx expo start
-   ```
+Dark/Light Mode toggle
 
-In the output, you'll find options to open the app in a
+Notifikasi toast saat aksi sukses/error
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+📱 Teknologi
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+React Native & TypeScript
 
-## Get a fresh project
+Expo Router
 
-When you're ready, run:
+Zustand (state management)
 
-```bash
-npm run reset-project
-```
+react-native-toast-message
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+🗂 Struktur Project
+/app
+  home.tsx         -> Halaman utama daftar item
+  add.tsx          -> Halaman tambah item
+  detail.tsx       -> Halaman edit item
+/components
+  ShoppingCard.tsx -> Kartu item belanja
+/utils
+  theme.ts         -> Light/Dark color themes
+/store
+  useShoppingStore.ts -> Store item belanja
+  useThemeStore.ts    -> Store dark mode
 
-## Learn more
+⚡ Instalasi Cepat
+git clone https://github.com/username/shopping-app.git
+cd shopping-app
+npm install
+npx expo start
 
-To learn more about developing your project with Expo, look at the following resources:
+🖥 Contoh Penggunaan
+Home Screen
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Toggle dark mode di kanan atas
 
-## Join the community
+Search bar untuk pencarian item
 
-Join our community of developers creating universal apps.
+Tambah item dengan tombol "+ Tambah Item"
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Add Screen
+
+Isi Nama, Quantity, dan Kategori
+
+Tekan Simpan untuk menambah item
+
+Detail Screen
+
+Edit nama, quantity, kategori
+
+Tekan Simpan Perubahan
+
+🌙 Dark Mode
+
+Dark mode diatur menggunakan Zustand:
+
+import create from "zustand";
+
+export const useThemeStore = create((set) => ({
+  darkMode: false,
+  toggleDarkMode: () => set(state => ({ darkMode: !state.darkMode })),
+}));
+
+🛠 Store Item Belanja
+import create from "zustand";
+import { v4 as uuidv4 } from "uuid";
+
+export const useShoppingStore = create((set) => ({
+  items: [],
+  addItem: (item) => set(state => ({ items: [...state.items, { ...item, id: uuidv4() }] })),
+  editItem: (id, item) => set(state => ({ items: state.items.map(i => i.id === id ? { ...i, ...item } : i) })),
+  deleteItem: (id) => set(state => ({ items: state.items.filter(i => i.id !== id) })),
+  togglePurchased: (id) => set(state => ({ items: state.items.map(i => i.id === id ? { ...i, purchased: !i.purchased } : i) })),
+}));
+
+📌 Catatan
+
+Gunakan React Native 0.72+ dan Expo Router 2.x+ untuk kompatibilitas penuh
+
+Pastikan <Toast /> ditambahkan di root App.tsx
+
+import Toast from "react-native-toast-message";
+
+export default function App() {
+  return (
+    <>
+      <RootNavigator />
+      <Toast />
+    </>
+  );
+}
