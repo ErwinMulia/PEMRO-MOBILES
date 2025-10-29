@@ -1,37 +1,20 @@
 import { useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useShoppingStore } from "../../store/useShoppingStore";
 import { useThemeStore } from "../../store/useThemeStore";
 import { lightColors, darkColors } from "../utils/theme";
 
-export default function DetailScreen({ route }: any) {
+export default function AddScreen() {
   const router = useRouter();
   const darkMode = useThemeStore((state) => state.darkMode);
   const colors = darkMode ? darkColors : lightColors;
 
-  // Ambil id dari route.params
-  const id = route?.params?.id;
+  const addItem = useShoppingStore((state) => state.addItem);
 
-  const items = useShoppingStore((state) => state.items);
-  const editItem = useShoppingStore((state) => state.editItem);
-
-  const item = items.find((i) => i.id === id);
-
-  const [nama, setNama] = useState(item?.nama || "");
-  const [quantity, setQuantity] = useState(item?.quantity.toString() || "");
-  const [kategori, setKategori] = useState(item?.kategori || "");
-
-  // Update state jika item berubah (misal reload)
-  useEffect(() => {
-    if (item) {
-      setNama(item.nama);
-      setQuantity(item.quantity.toString());
-      setKategori(item.kategori);
-    }
-  }, [item]);
-
-  if (!item) return <Text style={{ color: colors.text }}>Item tidak ditemukan</Text>;
+  const [nama, setNama] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [kategori, setKategori] = useState("");
 
   const handleSave = () => {
     const qty = parseInt(quantity);
@@ -39,35 +22,41 @@ export default function DetailScreen({ route }: any) {
       Alert.alert("Error", "Semua field wajib diisi dan quantity harus angka");
       return;
     }
-    // editItem hanya update properti yang boleh diubah
-    editItem(item.id, { nama, quantity: qty, kategori });
-    Alert.alert("Berhasil", "Item berhasil diperbarui");
+
+    addItem({ nama, quantity: qty, kategori});
+    Alert.alert("Berhasil", "Item berhasil ditambahkan");
     router.back();
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Detail Item</Text>
+      <Text style={[styles.title, { color: colors.text }]}>Tambah Item</Text>
 
       <TextInput
         style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.placeholder }]}
+        placeholder="Nama Item"
+        placeholderTextColor={colors.placeholder}
         value={nama}
         onChangeText={setNama}
       />
       <TextInput
         style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.placeholder }]}
+        placeholder="Quantity"
+        placeholderTextColor={colors.placeholder}
         value={quantity}
         onChangeText={setQuantity}
         keyboardType="numeric"
       />
       <TextInput
         style={[styles.input, { backgroundColor: colors.card, color: colors.text, borderColor: colors.placeholder }]}
+        placeholder="Kategori"
+        placeholderTextColor={colors.placeholder}
         value={kategori}
         onChangeText={setKategori}
       />
 
       <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary }]} onPress={handleSave}>
-        <Text style={styles.btnText}>Simpan Perubahan</Text>
+        <Text style={styles.btnText}>Simpan</Text>
       </TouchableOpacity>
     </View>
   );

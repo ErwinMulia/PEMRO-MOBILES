@@ -1,47 +1,84 @@
-import { useNavigation } from "@react-navigation/native";
-import React from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useLaundryStore } from "../../store/useLaundryStore";
-import LaundryCard from "../components/LaundryCard";
+import { useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Switch } from "react-native";
+import { useShoppingStore } from "../../store/useShoppingStore";
+import ShoppingCard from "../components/ShoppingCard";
+import { useThemeStore } from "../../store/useThemeStore";
+import { lightColors, darkColors } from "../utils/theme";
+import Toast from "react-native-toast-message";
 
 export default function HomeScreen() {
-  const { laundries } = useLaundryStore();
-  const navigation = useNavigation<any>();
+  const router = useRouter();
+  const items = useShoppingStore((state) => state.items);
+  const deleteItem = useShoppingStore((state) => state.deleteItem);
+  const togglePurchased = useShoppingStore((state) => state.togglePurchased);
+  const darkMode = useThemeStore((state) => state.darkMode);
+  const toggleDarkMode = useThemeStore((state) => state.toggleDarkMode);
+  const colors = darkMode ? darkColors : lightColors;
+
+  const [search, setSearch] = useState("");
+  const [filteredItems, setFilteredItems] = useState(items);
+
+  useEffect(() => {
+    const lower = search.toLowerCase();
+    setFilteredItems(
+      items.filter(
+        (item) => item.nama.toLowerCase().includes(lower) || item.kategori.toLowerCase().includes(lower)
+      )
+    );
+  }, [search, items]);
+
+  const handleDelete = (id: string) => {
+    deleteItem(id);
+    Toast.show({ type: "success", text1: "Item dihapus" });
+  };
+
+  const handleToggle = (id: string) => {
+    togglePurchased(id);
+    Toast.show({ type: "success", text1: "Status diperbarui" });
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Daftar Laundry</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Dark Mode Toggle */}
+      <View style={{ flexDirection: "row", justifyContent: "flex-end", marginBottom: 12, alignItems: "center" }}>
+        <Text style={{ color: colors.text, marginRight: 8 }}>{darkMode ? "Dark Mode" : "Light Mode"}</Text>
+        <Switch value={darkMode} onValueChange={toggleDarkMode} />
+      </View>
+
+      <TextInput
+        style={[styles.search, { backgroundColor: colors.card, color: colors.text, borderColor: colors.placeholder }]}
+        placeholder="Cari nama atau kategori..."
+        placeholderTextColor={colors.placeholder}
+        value={search}
+        onChangeText={setSearch}
+      />
+
+      <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={() => router.push("/add")}>
+        <Text style={styles.addText}>+ Tambah Item</Text>
+      </TouchableOpacity>
+
       <FlatList
-        data={laundries}
+        data={filteredItems}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <LaundryCard
+          <ShoppingCard
             item={item}
-            onPress={() => navigation.navigate("Detail", { id: item.id })}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            // Kirim id lewat query param
+            onPress={() => router.push(`/detail?id=${item.id}`)}
           />
         )}
-        ListEmptyComponent={<Text>Tidak ada data laundry.</Text>}
+        ListEmptyComponent={<Text style={{ marginTop: 20, color: colors.text }}>Belum ada item.</Text>}
       />
-      <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate("Add")}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#fff" },
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 10 },
-  fab: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#1E90FF",
-    width: 55,
-    height: 55,
-    borderRadius: 28,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  fabText: { color: "#fff", fontSize: 26 },
+  container: { flex: 1, padding: 16 },
+  search: { borderWidth: 1, borderRadius: 10, padding: 10, marginBottom: 12 },
+  addBtn: { padding: 14, borderRadius: 10, alignItems: "center", marginBottom: 12 },
+  addText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

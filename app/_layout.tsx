@@ -1,3 +1,4 @@
+//app/_layout.tsx
 import { Stack } from "expo-router";
 import 'react-native-get-random-values';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
